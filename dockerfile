@@ -25,8 +25,6 @@ WORKDIR /root/
 # Copy the Pre-built binary file from the previous stage
 COPY --from=builder /app/main .
 
-# Copy the .env file from the host machine to the container
-COPY .env .
 
 # Install CA certificates for secure connections
 RUN apk --no-cache add ca-certificates

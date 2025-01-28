@@ -1,0 +1,18 @@
+services:
+  - name: project-tracker
+    type: web
+    runtime: docker  
+    plan: free
+    repo: https://github.com/markmumba/project-tracker-backend
+    branch: main
+    rootDir: /
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false

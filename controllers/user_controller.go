@@ -69,6 +69,7 @@ func (uc *UserController) Login(c echo.Context) error {
 		Expires: time.Now().Add(time.Hour * 72),
 		Domain: frontend,
 		Secure: true,
+		HttpOnly: true,
 	})
 
 	return c.JSON(http.StatusOK, echo.Map{

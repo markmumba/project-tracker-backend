@@ -2,7 +2,6 @@ module github.com/markmumba/project-tracker
 
 go 1.22.0
 
-toolchain go1.23.0
 
 require (
 	github.com/golang-jwt/jwt/v5 v5.0.0

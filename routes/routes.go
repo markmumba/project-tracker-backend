@@ -20,14 +20,15 @@ func SetupRouter(
 ) *echo.Echo {
 	e := echo.New()
 
-	frontend:= os.Getenv("FRONTEND_URL")
+	frontend := os.Getenv("FRONTEND_URL")
+	localhostfrontend := os.Getenv("LOCALHOST_FRONTEND")
 
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "method=${method}, uri=${uri}, status=${status}\n",
 	}))
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{frontend},
+		AllowOrigins:     []string{frontend, localhostfrontend},
 		AllowMethods:     []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
 		AllowCredentials: true,
 	}))
@@ -37,12 +38,12 @@ func SetupRouter(
 	submissionController := controllers.NewSubmissionController(submissionService)
 	feedbackController := controllers.NewFeedbackController(feedbackService)
 	communicationController := controllers.NewCommunicationContoller(communicationService)
-	websocketController := controllers.NewWebsocketController(*communicationService,*projectService)
+	websocketController := controllers.NewWebsocketController(*communicationService, *projectService)
 
 	e.POST("/register", userController.CreateUser)
 	e.POST("/login", userController.Login)
 	e.GET("/logout", userController.Logout)
-	e.GET("/ws",websocketController.HandleWebSocket)
+	e.GET("/ws", websocketController.HandleWebSocket)
 
 	r := e.Group("")
 	r.Use(custommiddleware.Authentication)

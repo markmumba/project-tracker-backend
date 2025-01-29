@@ -1,3 +1,9 @@
+// @title Project Tracker API
+// @version 1.0
+// @description API documentation for the Project Tracker
+// @host localhost:8080
+// @BasePath /api/v1
+
 package main
 
 import (
@@ -9,23 +15,18 @@ import (
 	"time"
 
 	"github.com/markmumba/project-tracker/database"
-	"github.com/markmumba/project-tracker/models"
 	"github.com/markmumba/project-tracker/repository"
 	"github.com/markmumba/project-tracker/routes"
 	"github.com/markmumba/project-tracker/services"
+	_"github.com/markmumba/project-tracker/docs"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
+
 
 func main() {
 	database.ConnectDB()
 
-	database.DB.AutoMigrate(
-		&models.Role{},
-		&models.User{},
-		&models.Project{},
-		&models.Submission{},
-		&models.Feedback{},
-		&models.CommunicationHistory{},
-	)
+	database.RunMigrations()
 
 	userRepository := repository.NewUserRepository()
 	userService := services.NewUserService(userRepository)
@@ -43,6 +44,9 @@ func main() {
 	communicationService := services.NewCommunicationService(communicationRepository)
 
 	handler := routes.SetupRouter(userService, projectService, submissionService, feedbackService, communicationService)
+
+	handler.GET("/swagger/*", echoSwagger.WrapHandler)
+
 	
 	// Get port from environment variable with fallback to 8080
 	port := os.Getenv("BACKEND_PORT")

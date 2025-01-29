@@ -1,7 +1,20 @@
+// CreateUser godoc
+// @Summary Create a new user
+// @Description This API creates a new user
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param user body models.User true "Create User"
+// @Success 201 {object} models.User
+// @Failure 400 {object} helpers.ErrorResponse
+// @Failure 500 {object} helpers.ErrorResponse
+// @Router /users [post]
+
 package controllers
 
 import (
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -22,6 +35,19 @@ func NewUserController(userService *services.UserService) *UserController {
 }
 
 // TODO : Get all the lecturers that is get all users where role id is 1
+// @Summary Login User
+// @Description Logs in a user and returns a JWT token
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param email body string true "Email"
+// @Param password body string true "Password"
+// @Success 200 {object} echo.Map{"token":string}
+// @Failure 400 {object} echo.Map{"error":string}
+// @Failure 401 {object} echo.Map{"error":string}
+// @Router /login [post]
+
+var frontend = os.Getenv("FRONTEND_URL")
 
 func (uc *UserController) Login(c echo.Context) error {
 	var credentials struct {
@@ -41,6 +67,8 @@ func (uc *UserController) Login(c echo.Context) error {
 		Name:    "token",
 		Value:   token,
 		Expires: time.Now().Add(time.Hour * 72),
+		Domain: frontend,
+		Secure: true,
 	})
 
 	return c.JSON(http.StatusOK, echo.Map{

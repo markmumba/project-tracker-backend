@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/markmumba/project-tracker/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -23,4 +24,18 @@ func ConnectDB() {
         log.Fatal("Error connecting to database: ", err)
     }
     log.Println("Connection established successfully")
+}
+
+func RunMigrations() {
+        err := DB.AutoMigrate(
+            &models.Role{},
+            &models.User{},
+            &models.Project{},
+            &models.Submission{},
+            &models.Feedback{},
+            &models.CommunicationHistory{},
+        )
+        if err != nil {
+            log.Println("could not make migrations")
+        }
 }

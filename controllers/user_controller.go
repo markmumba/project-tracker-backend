@@ -14,7 +14,6 @@ package controllers
 
 import (
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -47,7 +46,6 @@ func NewUserController(userService *services.UserService) *UserController {
 // @Failure 401 {object} echo.Map{"error":string}
 // @Router /login [post]
 
-var frontend = os.Getenv("FRONTEND_URL")
 
 func (uc *UserController) Login(c echo.Context) error {
 	var credentials struct {
@@ -63,15 +61,6 @@ func (uc *UserController) Login(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, err.Error())
 	}
-	c.SetCookie(&http.Cookie{
-		Name:    "token",
-		Value:   token,
-		Expires: time.Now().Add(time.Hour * 72),
-		Domain: frontend,
-		Secure: true,
-		HttpOnly: true,
-	})
-
 	return c.JSON(http.StatusOK, echo.Map{
 		"token": token,
 	})

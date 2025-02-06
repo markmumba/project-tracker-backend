@@ -3,6 +3,7 @@ package custommiddleware
 import (
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
@@ -12,15 +13,20 @@ import (
 var JwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 func Authentication(next echo.HandlerFunc) echo.HandlerFunc {
-
 	return func(c echo.Context) error {
-
-		cookie, err := c.Cookie("token")
-		if err != nil {
+		authHeader := c.Request().Header.Get("Authorization")
+		if authHeader == "" {
 			return c.JSON(http.StatusUnauthorized, echo.Map{"message": "unauthorized"})
 		}
 
-		token, err := jwt.ParseWithClaims(cookie.Value, &auth.JwtCustomClaims{}, func(t *jwt.Token) (interface{}, error) {
+		// Check if the header follows "Bearer <token>" format
+		parts := strings.Split(authHeader, " ")
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			return c.JSON(http.StatusUnauthorized, echo.Map{"message": "invalid token format"})
+		}
+
+		tokenStr := parts[1]
+		token, err := jwt.ParseWithClaims(tokenStr, &auth.JwtCustomClaims{}, func(t *jwt.Token) (interface{}, error) {
 			return JwtSecret, nil
 		})
 		if err != nil {
@@ -29,7 +35,6 @@ func Authentication(next echo.HandlerFunc) echo.HandlerFunc {
 
 		if claims, ok := token.Claims.(*auth.JwtCustomClaims); ok && token.Valid {
 			c.Set("userId", claims.UserId)
-	
 			return next(c)
 		}
 
